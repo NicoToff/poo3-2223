@@ -4,9 +4,10 @@ import com.fazecast.jSerialComm.SerialPort
 import java.util.*
 
 class Reader(private val comPort: SerialPort) : Thread() {
-    val history: Hashtable<Date, Double> = Hashtable(256, 0.75f)
-    var lastEntry: Map.Entry<Date, Double>? = null
+    val comPortName: String = comPort.systemPortName
+    val history: TreeMap<Date, Double> = TreeMap()
     private var lastStorageDate: Date = Date()
+
     private fun portConnection(comPort: SerialPort) {
         comPort.closePort() // Reset the port if it was opened before
         while (!comPort.isOpen) {
@@ -41,9 +42,8 @@ class Reader(private val comPort: SerialPort) : Thread() {
                     val now = Date()
                     if (now.time - lastStorageDate.time >= 1000) {
                         history[now] = number
-                        lastEntry = history.entries.last()
                         lastStorageDate = now
-                        println("Reader: $number")
+                        println("(Reader) $comPortName: $number")
                     }
                 } catch (nfex: NumberFormatException) {
                     // String parsing into a double sometimes fails
