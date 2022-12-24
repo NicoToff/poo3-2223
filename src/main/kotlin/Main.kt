@@ -8,4 +8,10 @@ fun main(args: Array<String>) {
     var comPort = availablePorts[0]
     val r = Reader(comPort)
     r.start()
+    while (true) {
+        Thread.sleep(1000)
+        if (r.history.isNotEmpty()) {
+            println("From Main: ${r.lastElem}")
+        }
+    }
 }
