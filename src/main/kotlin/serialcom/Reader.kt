@@ -30,7 +30,7 @@ class Reader(private val comPort: SerialPort) : Thread() {
                     val number: Double = data.toDouble()
                     // Store the data every second at most
                     val now = Date()
-                    if (now.time - lastStorageDate.time > 1000) {
+                    if (now.time - lastStorageDate.time >= 1000) {
                         history[now] = number
                         lastElem = number
                         lastStorageDate = now
