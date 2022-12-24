@@ -11,7 +11,7 @@ fun main(args: Array<String>) {
     while (true) {
         Thread.sleep(1000)
         if (r.history.isNotEmpty()) {
-            println("From Main: ${r.lastElem}")
+            println("From Main: ${r.lastEntry?.value}")
         }
     }
 }

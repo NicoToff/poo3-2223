@@ -5,10 +5,10 @@ import java.util.*
 
 class Reader(private val comPort: SerialPort) : Thread() {
     val history: Hashtable<Date, Double> = Hashtable(256, 0.75f)
-    var lastElem: Map.Entry<Date, Double>? = null
+    var lastEntry: Map.Entry<Date, Double>? = null
     private var lastStorageDate: Date = Date()
-    private fun connection() {
-        comPort.closePort()
+    private fun portConnection(comPort: SerialPort) {
+        comPort.closePort() // Reset the port if it was opened before
         while (!comPort.isOpen) {
             comPort.openPort()
             if (!comPort.isOpen) {
@@ -23,7 +23,7 @@ class Reader(private val comPort: SerialPort) : Thread() {
     }
 
     override fun run() {
-        connection()
+        portConnection(this.comPort)
         // Read data
         try {
             while (true) {
@@ -41,7 +41,7 @@ class Reader(private val comPort: SerialPort) : Thread() {
                     val now = Date()
                     if (now.time - lastStorageDate.time >= 1000) {
                         history[now] = number
-                        lastElem = history.entries.last()
+                        lastEntry = history.entries.last()
                         lastStorageDate = now
                         println("Reader: $number")
                     }
@@ -53,7 +53,7 @@ class Reader(private val comPort: SerialPort) : Thread() {
                     // Disconnecting the USB port throws this exception
                     ex.printStackTrace()
                     println("Reconnecting...")
-                    connection()
+                    portConnection(this.comPort)
                 }
             }
         } catch (ex: Exception) {
