@@ -8,5 +8,4 @@ fun main(args: Array<String>) {
     var comPort = availablePorts[0]
     val r = Reader(comPort)
     r.start()
-
 }

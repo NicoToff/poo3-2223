@@ -2,12 +2,10 @@ package serialcom
 
 import com.fazecast.jSerialComm.SerialPort
 
-class Reader(private val comPort : SerialPort) : Thread() {
-    val portName: String? = comPort.systemPortName
-
+class Reader(private val comPort: SerialPort) : Thread() {
     override fun run() {
         val isOpen = comPort.openPort()
-        if(!isOpen) {
+        if (!isOpen) {
             println("Error while opening port")
             return
         }
@@ -21,9 +19,12 @@ class Reader(private val comPort : SerialPort) : Thread() {
                     Thread.yield()
                 // Read data
                 val readBuffer = ByteArray(comPort.bytesAvailable())
+                comPort.readBytes(readBuffer, readBuffer.size.toLong())
+                // Parse the data
+                val data = String(readBuffer)
+                val number: Double = data.toDouble()
                 // Print data
-                val numRead = comPort.readBytes(readBuffer, readBuffer.size.toLong())
-                println("$portName -> ${String(readBuffer)}")
+                println("${comPort.systemPortName} -> $number")
             }
         } catch (ex: Exception) {
             ex.printStackTrace()
