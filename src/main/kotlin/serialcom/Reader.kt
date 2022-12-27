@@ -23,8 +23,11 @@ class Reader(private val comPort: SerialPort) : Thread() {
         comPort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 0)
     }
 
+    init {
+        portConnection(comPort)
+    }
+
     override fun run() {
-        portConnection(this.comPort)
         // Read data
         try {
             while (true) {

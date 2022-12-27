@@ -1,37 +1,98 @@
+import com.fazecast.jSerialComm.SerialPort
+import serialcom.Reader
 import java.awt.Color
 import java.awt.Font
+import java.awt.event.ActionEvent
+import java.util.*
 import javax.swing.*
+import javax.swing.event.DocumentEvent
+import javax.swing.event.DocumentListener
+import javax.swing.text.Document
 
-class HomePage : JFrame() {
+class HomePage(
+    val availablePorts: Array<SerialPort>
+) : JFrame() {
+    private fun Document.addDocumentListener() {
+        this.addDocumentListener(object : DocumentListener {
+            override fun insertUpdate(e: DocumentEvent) {
+                update()
+            }
 
-    private var btnConnect: JButton = JButton()
-    private var btnStart: JButton = JButton()
-    private var btnStop: JButton = JButton()
-    private var cmbPort: JComboBox<String> = JComboBox()
-    private var jLabel1: JLabel = JLabel()
-    private var jLabel2: JLabel = JLabel()
-    private var jLabel3: JLabel = JLabel()
-    private var jLabel4: JLabel = JLabel()
-    private var jLabel5: JLabel = JLabel()
-    private var jLabel6: JLabel = JLabel()
-    private var jSeparator1: JSeparator = JSeparator()
-    private var lblLastValue: JLabel = JLabel()
-    private var lblSampleNumber: JLabel = JLabel()
-    private var lblStartTime: JLabel = JLabel()
-    private var txtComment: JTextField = JTextField()
-    private var txtOperator: JTextField = JTextField()
+            override fun removeUpdate(e: DocumentEvent) {
+                update()
+            }
+
+            override fun changedUpdate(e: DocumentEvent) {
+                update()
+            }
+
+            private fun update() {
+                // TODO: Set a secondary thread to check for new ports on the fly
+                if (txtOperator.text.length > 5 && cmbPort.selectedItem != null) {
+                    btnConnect.isEnabled = true
+                    btnConnect.toolTipText = null
+                } else {
+                    btnConnect.isEnabled = false
+                    btnConnect.toolTipText = toolTipTextBtnConnect
+                }
+            }
+        })
+    }
+
+    private fun connectButtonClicked(e: ActionEvent) {
+        val port = availablePorts[cmbPort.selectedIndex]
+        reader = Reader(port)
+        btnStart.isEnabled = port.isOpen
+        cmbPort.isEnabled = !port.isOpen
+    }
+
+    private fun startButtonClicked(e: ActionEvent) {
+        lblStartTime.text = Date().toString()
+        reader?.start()
+    }
+
+    private fun stopButtonClicked(e: ActionEvent) {
+        println("Stop button clicked")
+    }
+
+    private var reader: Reader? = null
+    private val btnConnect: JButton = JButton()
+    private val btnStart: JButton = JButton()
+    private val btnStop: JButton = JButton()
+    private val cmbPort: JComboBox<String> = JComboBox(availablePorts.map { it.systemPortName }.toTypedArray())
+    private val jLabel1: JLabel = JLabel()
+    private val jLabel2: JLabel = JLabel()
+    private val jLabel3: JLabel = JLabel()
+    private val jLabel4: JLabel = JLabel()
+    private val jLabel5: JLabel = JLabel()
+    private val jLabel6: JLabel = JLabel()
+    private val jSeparator1: JSeparator = JSeparator()
+    private val lblLastValue: JLabel = JLabel()
+    private val lblSampleNumber: JLabel = JLabel()
+    private val lblStartTime: JLabel = JLabel()
+    private val txtComment: JTextField = JTextField()
+    private val txtOperator: JTextField = JTextField()
+    private val toolTipTextBtnConnect = "Veuillez entrer un nom d'opérateur"
+
 
     init {
         title = "Home Page"
         defaultCloseOperation = EXIT_ON_CLOSE
         isVisible = true
         initComponents()
+        btnConnect.addActionListener(::connectButtonClicked)
+        btnStart.addActionListener(::startButtonClicked)
+        btnStop.addActionListener(::stopButtonClicked)
+        txtOperator.document.addDocumentListener()
     }
 
     private fun initComponents() {
         jLabel1.text = "Opérateur :"
         jLabel2.text = "Commentaire :"
+        txtOperator.toolTipText = "Nom de l'opérateur"
         btnConnect.text = "Connexion"
+        btnConnect.isEnabled = false
+        btnConnect.toolTipText = toolTipTextBtnConnect
         jLabel3.text = "Port :"
         jLabel4.text = "Démarrage :"
         jLabel5.text = "# échantillons :"
@@ -39,9 +100,11 @@ class HomePage : JFrame() {
         btnStart.background = Color(204, 255, 153)
         btnStart.font = Font("Segoe UI", 0, 18) // NOI18N
         btnStart.text = "Start"
+        btnStart.isEnabled = false
         btnStop.background = Color(255, 102, 102)
         btnStop.font = Font("Segoe UI", 0, 18) // NOI18N
-        btnStop.setText("Stop")
+        btnStop.text = "Stop"
+        btnStop.isEnabled = false
         lblStartTime.setText("xx:xx:xx")
         lblSampleNumber.setFont(Font("Segoe UI", 0, 14)) // NOI18N
         lblSampleNumber.setText("XXX")

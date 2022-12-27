@@ -4,15 +4,16 @@ import java.util.*
 
 fun main(args: Array<String>) {
     println("Hello Exam POO 3!")
-    var availablePorts = SerialPort.getCommPorts()
+    var availablePorts: Array<SerialPort> = SerialPort.getCommPorts()
     val readers: ArrayList<Reader> = ArrayList()
-    // Open the first available port
-    for (port in availablePorts) {
-        println("Found port: ${port.systemPortName}")
-        readers.add(Reader(port))
-    }
 
-    HomePage()
+//    for (port in availablePorts) {
+//        println("Found port: ${port.systemPortName}")
+//        readers.add(Reader(port))
+//    }
+
+    val homepage = HomePage(availablePorts)
+    homepage.availablePorts
 
     // Start the threads
     for (reader in readers) {
