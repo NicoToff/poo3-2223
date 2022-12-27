@@ -12,6 +12,8 @@ fun main(args: Array<String>) {
         readers.add(Reader(port))
     }
 
+    HomePage()
+
     // Start the threads
     for (reader in readers) {
         reader.start()
