@@ -1,4 +1,5 @@
 import com.fazecast.jSerialComm.SerialPort
+import serialcom.PortSearch
 import serialcom.Reader
 import java.awt.Color
 import java.awt.Font
@@ -10,7 +11,7 @@ import javax.swing.event.DocumentListener
 import javax.swing.text.Document
 
 class HomePage(
-    val availablePorts: Array<SerialPort>
+    var availablePorts: Array<SerialPort>
 ) : JFrame() {
     private fun Document.addDocumentListener() {
         this.addDocumentListener(object : DocumentListener {
@@ -27,7 +28,6 @@ class HomePage(
             }
 
             private fun update() {
-                // TODO: Set a secondary thread to check for new ports on the fly
                 if (txtOperator.text.length > 5 && cmbPort.selectedItem != null) {
                     btnConnect.isEnabled = true
                     btnConnect.toolTipText = null
@@ -40,26 +40,38 @@ class HomePage(
     }
 
     private fun connectButtonClicked(e: ActionEvent) {
-        val port = availablePorts[cmbPort.selectedIndex]
-        reader = Reader(port)
-        btnStart.isEnabled = port.isOpen
-        cmbPort.isEnabled = !port.isOpen
+        if (cmbPort.selectedIndex != -1) {
+            val port = availablePorts[cmbPort.selectedIndex]
+            reader = Reader(this, port)
+            btnStart.isEnabled = port.isOpen
+            cmbPort.isEnabled = !port.isOpen
+        }
     }
 
     private fun startButtonClicked(e: ActionEvent) {
-        lblStartTime.text = Date().toString()
         reader?.start()
+        lblStartTime.text = Date().toString()
+        btnStart.isEnabled = false
+        btnStop.isEnabled = true
     }
 
     private fun stopButtonClicked(e: ActionEvent) {
-        println("Stop button clicked")
+        reader?.interrupt()
+        btnStop.isEnabled = false
     }
 
+    val cmbPort: JComboBox<String> = JComboBox(availablePorts.map { it.systemPortName }.toTypedArray())
     private var reader: Reader? = null
+    val lblLastValue: JLabel = JLabel()
+    val lblSampleNumber: JLabel = JLabel()
+
     private val btnConnect: JButton = JButton()
     private val btnStart: JButton = JButton()
     private val btnStop: JButton = JButton()
-    private val cmbPort: JComboBox<String> = JComboBox(availablePorts.map { it.systemPortName }.toTypedArray())
+    private val lblStartTime: JLabel = JLabel()
+    private val txtComment: JTextField = JTextField()
+    private val txtOperator: JTextField = JTextField()
+    private val toolTipTextBtnConnect = "Veuillez entrer un nom d'opérateur"
     private val jLabel1: JLabel = JLabel()
     private val jLabel2: JLabel = JLabel()
     private val jLabel3: JLabel = JLabel()
@@ -67,13 +79,6 @@ class HomePage(
     private val jLabel5: JLabel = JLabel()
     private val jLabel6: JLabel = JLabel()
     private val jSeparator1: JSeparator = JSeparator()
-    private val lblLastValue: JLabel = JLabel()
-    private val lblSampleNumber: JLabel = JLabel()
-    private val lblStartTime: JLabel = JLabel()
-    private val txtComment: JTextField = JTextField()
-    private val txtOperator: JTextField = JTextField()
-    private val toolTipTextBtnConnect = "Veuillez entrer un nom d'opérateur"
-
 
     init {
         title = "Home Page"
@@ -84,6 +89,7 @@ class HomePage(
         btnStart.addActionListener(::startButtonClicked)
         btnStop.addActionListener(::stopButtonClicked)
         txtOperator.document.addDocumentListener()
+        PortSearch(this).start()
     }
 
     private fun initComponents() {
@@ -105,11 +111,11 @@ class HomePage(
         btnStop.font = Font("Segoe UI", 0, 18) // NOI18N
         btnStop.text = "Stop"
         btnStop.isEnabled = false
-        lblStartTime.setText("xx:xx:xx")
-        lblSampleNumber.setFont(Font("Segoe UI", 0, 14)) // NOI18N
-        lblSampleNumber.setText("XXX")
-        lblLastValue.setFont(Font("Segoe UI", 0, 24)) // NOI18N
-        lblLastValue.setText("XXXXX")
+        lblStartTime.text = "..."
+        lblSampleNumber.font = Font("Segoe UI", 0, 14) // NOI18N
+        lblSampleNumber.text = "..."
+        lblLastValue.font = Font("Segoe UI", 0, 24) // NOI18N
+        lblLastValue.text = "..."
         val layout = GroupLayout(contentPane)
         contentPane.layout = layout
         layout.setHorizontalGroup(

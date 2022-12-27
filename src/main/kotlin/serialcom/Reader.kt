@@ -1,9 +1,10 @@
 package serialcom
 
+import HomePage
 import com.fazecast.jSerialComm.SerialPort
 import java.util.*
 
-class Reader(private val comPort: SerialPort) : Thread() {
+class Reader(val homePage: HomePage, private val comPort: SerialPort) : Thread() {
     val comPortName: String = comPort.systemPortName
     val history: TreeMap<Date, Double> = TreeMap()
     private var lastStorageDate: Date = Date()
@@ -30,7 +31,7 @@ class Reader(private val comPort: SerialPort) : Thread() {
     override fun run() {
         // Read data
         try {
-            while (true) {
+            while (!this.isInterrupted) {
                 try {
                     while (comPort.bytesAvailable() == 0) {
                         Thread.yield()
@@ -46,7 +47,9 @@ class Reader(private val comPort: SerialPort) : Thread() {
                     if (now.time - lastStorageDate.time >= 1000) {
                         history[now] = number
                         lastStorageDate = now
+                        homePage.lblLastValue.text = number.toString()
                         println("(Reader) $comPortName: $number")
+                        homePage.lblSampleNumber.text = history.size.toString()
                     }
                 } catch (nfex: NumberFormatException) {
                     // String parsing into a double sometimes fails
