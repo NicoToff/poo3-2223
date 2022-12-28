@@ -4,7 +4,9 @@ import serialcom.Reader
 import java.awt.Color
 import java.awt.Font
 import java.awt.event.ActionEvent
-import java.util.*
+import java.io.File
+import java.io.FileOutputStream
+import java.time.LocalDateTime
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
@@ -51,12 +53,13 @@ class HomePage(
 
     private fun startButtonClicked(e: ActionEvent) {
         reader?.start()
-        lblStartTime.text = Date().toString()
+        lblStartTime.text = LocalDateTime.now().toString()
         btnStart.isEnabled = false
         btnStop.isEnabled = true
     }
 
     private fun stopButtonClicked(e: ActionEvent) {
+        reader?.let { saveFile(it) }
         reader?.interrupt()
         btnStop.isEnabled = false
         btnConnect.isEnabled = true
@@ -64,6 +67,27 @@ class HomePage(
         availablePorts = emptyArray()
         cmbPort.removeAllItems()
         PortSearch(this).start()
+    }
+
+    private fun saveFile(reader: Reader) {
+        val data = reader.history
+        val operator = txtOperator.text
+        val port = cmbPort.selectedItem?.toString()
+        val startTime = LocalDateTime.parse(lblStartTime.text).toString().replace(":", "")
+        val endTime = LocalDateTime.now().toString()
+        val folder = File("data")
+        if (!folder.exists()) folder.mkdir()
+        println(startTime)
+        val fileName = "$startTime-$operator".replace(Regex("[\\\\/:)=(*!?\"<>|]"), "")
+        val file = File("data/$fileName.csv")
+        file.createNewFile()
+        FileOutputStream(file).use { stream ->
+            for ((time, value) in data.entries) {
+                val sanitizedTime = time.toString().replace(Regex("[=!&*^%$#@`~]"), "")
+                val entry = "$sanitizedTime;$value\n"
+                stream.write(entry.toByteArray())
+            }
+        }
     }
 
     // region Swing components

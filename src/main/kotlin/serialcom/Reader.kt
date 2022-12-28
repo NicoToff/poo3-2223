@@ -2,14 +2,57 @@ package serialcom
 
 import HomePage
 import com.fazecast.jSerialComm.SerialPort
+import java.time.Duration
+import java.time.LocalDateTime
 import java.util.*
 
 class Reader(private val homePage: HomePage, private val comPort: SerialPort) : Thread() {
-    val history: TreeMap<Date, Double> = TreeMap()
+    val history: TreeMap<LocalDateTime, Double> = TreeMap()
 
+    init {
+        portConnection(comPort)
+    }
+
+    override fun run() {
+        try {
+            readData() // Clears the buffer
+            while (!this.isInterrupted) {
+                try {
+                    while (comPort.bytesAvailable() == 0) {
+                        Thread.yield()
+                    }
+                    val readBuffer = readData() // Read data
+                    // Store the data every second at most
+                    val now = LocalDateTime.now()
+                    var timeDiff = 1000L // Base number top trigger the first iteration
+                    if (history.isNotEmpty()) timeDiff = Duration.between(history.lastKey(), now).toMillis()
+                    if (timeDiff >= 1000) {
+                        val number: Double = parseData(readBuffer) // Parse the data
+                        history[now] = number // Store the data
+                        // Update the UI
+                        homePage.lblLastValue.text = number.toString()
+                        homePage.lblSampleNumber.text = history.size.toString()
+                    }
+                } catch (ex: NegativeArraySizeException) {
+                    // Disconnecting the USB port throws this exception
+                    ex.printStackTrace()
+                    println("Reconnecting...")
+                    portConnection(this.comPort) // We need to try and reconnect
+                }
+            }
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        } finally {
+            comPort.closePort()
+        }
+    }
+
+    /**
+     * Handles the connection to the serial port.
+     * @param comPort The serial port to connect to.
+     */
     private fun portConnection(comPort: SerialPort) {
         comPort.closePort() // Reset the port if it was opened before
-
         while (!comPort.isOpen) {
             comPort.openPort()
             if (!comPort.isOpen) {
@@ -23,50 +66,30 @@ class Reader(private val homePage: HomePage, private val comPort: SerialPort) : 
         comPort.setComPortTimeouts(SerialPort.TIMEOUT_NONBLOCKING, 0, 0)
     }
 
-    init {
-        portConnection(comPort)
+    /** Reads the data from the serial port and returns it as a `ByteArray`.
+     *
+     *  By reading the data, the serial port buffer is emptied,
+     *  therefore this function can be called to only flush the buffer too.
+     *
+     *  @return A `ByteArray` with the data from port buffer. */
+    private fun readData(): ByteArray {
+        val byteArray = ByteArray(comPort.bytesAvailable())
+        comPort.readBytes(byteArray, byteArray.size.toLong())
+        return byteArray
     }
 
-    override fun run() {
+    /** Parses the data from a `ByteArray` and returns it as a `Double`.
+     * @param byteArray The ByteArray to parse.
+     * @return A `Double` */
+    private fun parseData(byteArray: ByteArray): Double {
         try {
-            while (!this.isInterrupted) {
-                try {
-                    while (comPort.bytesAvailable() == 0) {
-                        Thread.yield()
-                    }
-                    // Read data
-                    val readBuffer = ByteArray(comPort.bytesAvailable())
-                    comPort.readBytes(readBuffer, readBuffer.size.toLong())
-                    // Store the data every second at most
-                    val now = Date()
-                    var timeDiff = 1000L // Base number for the first iteration
-                    if (history.isNotEmpty()) timeDiff = now.time - history.keys.last().time
-                    if (timeDiff >= 1000) {
-                        // Parse the data
-                        val data = String(readBuffer)
-                        val number: Double = data.toDouble()
-                        // Store the data
-                        history[now] = number
-                        // Update the UI
-                        homePage.lblLastValue.text = number.toString()
-                        homePage.lblSampleNumber.text = history.size.toString()
-                    }
-                } catch (nfex: NumberFormatException) {
-                    // String parsing into a double sometimes fails
-                    // This is not a problem, we can just ignore it and go to the next iteration
-                    nfex.printStackTrace()
-                    println("Moving on...")
-                } catch (ex: NegativeArraySizeException) {
-                    // Disconnecting the USB port throws this exception
-                    ex.printStackTrace()
-                    println("Reconnecting...")
-                    portConnection(this.comPort) // We need to try and reconnect
-                }
-            }
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-        } finally {
-            comPort.closePort()
+            val data = String(byteArray)
+            return data.toDouble()
+        } catch (nfex: NumberFormatException) {
+            // String parsing into a double can fail if the buffer data isn't a number
+            // This is not a problem, we can just ignore it and go to the next iteration
+            nfex.printStackTrace()
+            return 0.0
         }
     }
 }
