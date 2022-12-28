@@ -78,12 +78,13 @@ class HomePage(
         val folder = File("data")
         if (!folder.exists()) folder.mkdir()
         println(startTime)
-        val fileName = "$startTime-$operator".replace(Regex("[\\\\/:)=(*!?\"<>|]"), "")
+        val fileName = makeSafeFileName("$startTime-$operator");
         val file = File("data/$fileName.csv")
         file.createNewFile()
         FileOutputStream(file).use { stream ->
             for ((time, value) in data.entries) {
-                val sanitizedTime = time.toString().replace(Regex("[=!&*^%$#@`~]"), "")
+                val sanitizedTime =
+                    time.toString().replace(Regex("[=!&*^%}{)($#@`~]"), "") // Remove dangerous characters for Excel
                 val entry = "$sanitizedTime;$value\n"
                 stream.write(entry.toByteArray())
             }
@@ -125,6 +126,17 @@ class HomePage(
         btnStop.addActionListener(::stopButtonClicked)
         txtOperator.document.addDocumentListener()
         PortSearch(this).start()
+    }
+
+    private fun makeSafeFileName(str: String): String {
+        val illegalFileName = Regex("^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$")
+        var fileName = str.replace(
+            Regex("[\\\\/:)=(*!?\"<>|]"),
+            ""
+        ) // Remove illegal characters in file names, and a few more
+            .substring(0, 255) // Limit file name length to 255 characters
+        if (fileName.matches(illegalFileName)) fileName = "data_$fileName"
+        return fileName
     }
 
     private fun initComponents() {
