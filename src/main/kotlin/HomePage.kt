@@ -44,6 +44,7 @@ class HomePage(
             val port = availablePorts[cmbPort.selectedIndex]
             reader = Reader(this, port)
             btnStart.isEnabled = port.isOpen
+            btnConnect.isEnabled = !port.isOpen
             cmbPort.isEnabled = !port.isOpen
         }
     }
@@ -58,8 +59,14 @@ class HomePage(
     private fun stopButtonClicked(e: ActionEvent) {
         reader?.interrupt()
         btnStop.isEnabled = false
+        btnConnect.isEnabled = true
+        cmbPort.isEnabled = true
+        availablePorts = emptyArray()
+        cmbPort.removeAllItems()
+        PortSearch(this).start()
     }
 
+    // region Swing components
     val cmbPort: JComboBox<String> = JComboBox(availablePorts.map { it.systemPortName }.toTypedArray())
     private var reader: Reader? = null
     val lblLastValue: JLabel = JLabel()
@@ -72,6 +79,8 @@ class HomePage(
     private val txtComment: JTextField = JTextField()
     private val txtOperator: JTextField = JTextField()
     private val toolTipTextBtnConnect = "Veuillez entrer un nom d'opérateur"
+
+    // region Unimportant labels
     private val jLabel1: JLabel = JLabel()
     private val jLabel2: JLabel = JLabel()
     private val jLabel3: JLabel = JLabel()
@@ -79,6 +88,8 @@ class HomePage(
     private val jLabel5: JLabel = JLabel()
     private val jLabel6: JLabel = JLabel()
     private val jSeparator1: JSeparator = JSeparator()
+    // endregion
+    // endregion
 
     init {
         title = "Home Page"

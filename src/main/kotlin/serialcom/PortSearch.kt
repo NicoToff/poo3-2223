@@ -11,7 +11,6 @@ class PortSearch(private val homePage: HomePage) : Thread() {
                 homePage.availablePorts = SerialPort.getCommPorts()
                 if (homePage.availablePorts.isNotEmpty()) {
                     println("Found port: ${homePage.availablePorts[0].systemPortName}")
-                    println(homePage.availablePorts)
                     for (port in homePage.availablePorts) {
                         homePage.cmbPort.addItem(port.systemPortName)
                         homePage.cmbPort.selectedItem = port.systemPortName

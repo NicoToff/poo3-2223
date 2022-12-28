@@ -4,13 +4,12 @@ import HomePage
 import com.fazecast.jSerialComm.SerialPort
 import java.util.*
 
-class Reader(val homePage: HomePage, private val comPort: SerialPort) : Thread() {
-    val comPortName: String = comPort.systemPortName
+class Reader(private val homePage: HomePage, private val comPort: SerialPort) : Thread() {
     val history: TreeMap<Date, Double> = TreeMap()
-    private var lastStorageDate: Date = Date()
 
     private fun portConnection(comPort: SerialPort) {
         comPort.closePort() // Reset the port if it was opened before
+
         while (!comPort.isOpen) {
             comPort.openPort()
             if (!comPort.isOpen) {
@@ -29,7 +28,6 @@ class Reader(val homePage: HomePage, private val comPort: SerialPort) : Thread()
     }
 
     override fun run() {
-        // Read data
         try {
             while (!this.isInterrupted) {
                 try {
@@ -39,27 +37,30 @@ class Reader(val homePage: HomePage, private val comPort: SerialPort) : Thread()
                     // Read data
                     val readBuffer = ByteArray(comPort.bytesAvailable())
                     comPort.readBytes(readBuffer, readBuffer.size.toLong())
-                    // Parse the data
-                    val data = String(readBuffer)
-                    val number: Double = data.toDouble()
                     // Store the data every second at most
                     val now = Date()
-                    if (now.time - lastStorageDate.time >= 1000) {
+                    var timeDiff = 1000L // Base number for the first iteration
+                    if (history.isNotEmpty()) timeDiff = now.time - history.keys.last().time
+                    if (timeDiff >= 1000) {
+                        // Parse the data
+                        val data = String(readBuffer)
+                        val number: Double = data.toDouble()
+                        // Store the data
                         history[now] = number
-                        lastStorageDate = now
+                        // Update the UI
                         homePage.lblLastValue.text = number.toString()
-                        println("(Reader) $comPortName: $number")
                         homePage.lblSampleNumber.text = history.size.toString()
                     }
                 } catch (nfex: NumberFormatException) {
                     // String parsing into a double sometimes fails
+                    // This is not a problem, we can just ignore it and go to the next iteration
                     nfex.printStackTrace()
                     println("Moving on...")
                 } catch (ex: NegativeArraySizeException) {
                     // Disconnecting the USB port throws this exception
                     ex.printStackTrace()
                     println("Reconnecting...")
-                    portConnection(this.comPort)
+                    portConnection(this.comPort) // We need to try and reconnect
                 }
             }
         } catch (ex: Exception) {
