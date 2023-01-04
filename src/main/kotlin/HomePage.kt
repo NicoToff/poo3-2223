@@ -71,14 +71,14 @@ class HomePage(
 
     private fun saveFile(reader: Reader) {
         val data = reader.history
-        val operator = txtOperator.text
+        val operator = txtOperator.text.trim()
         val port = cmbPort.selectedItem?.toString()
         val startTime = LocalDateTime.parse(lblStartTime.text).toString().replace(":", "")
         val endTime = LocalDateTime.now().toString()
         val folder = File("data")
         if (!folder.exists()) folder.mkdir()
-        println(startTime)
-        val fileName = makeSafeFileName("$startTime-$operator");
+        val fileName = makeSafeFileName("${startTime}_($port)_${operator}");
+        println("Saving file: $fileName")
         val file = File("data/$fileName.csv")
         file.createNewFile()
         FileOutputStream(file).use { stream ->
@@ -129,12 +129,12 @@ class HomePage(
     }
 
     private fun makeSafeFileName(str: String): String {
-        val illegalFileName = Regex("^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$")
+        val illegalFileName = Regex("^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$", RegexOption.IGNORE_CASE)
         var fileName = str.replace(
             Regex("[\\\\/:)=(*!?\"<>|]"),
             ""
-        ) // Remove illegal characters in file names, and a few more
-            .substring(0, 255) // Limit file name length to 255 characters
+        ).trim() // Remove illegal or dangerous characters in file names, then trims
+
         if (fileName.matches(illegalFileName)) fileName = "data_$fileName"
         return fileName
     }
