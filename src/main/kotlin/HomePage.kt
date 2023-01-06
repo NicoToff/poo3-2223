@@ -93,7 +93,7 @@ class HomePage(
 
     // region Swing components
     val cmbPort: JComboBox<String> = JComboBox(availablePorts.map { it.systemPortName }.toTypedArray())
-    private var reader: Reader? = null
+    var reader: Reader? = null
     val lblLastValue: JLabel = JLabel()
     val lblSampleNumber: JLabel = JLabel()
 

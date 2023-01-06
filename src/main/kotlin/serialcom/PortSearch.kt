@@ -16,7 +16,7 @@ class PortSearch(private val homePage: HomePage) : Thread() {
                         homePage.cmbPort.selectedItem = port.systemPortName
                     }
                 }
-                Thread.sleep(100)
+                Thread.sleep(500)
             }
         }
     }

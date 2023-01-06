@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Line Chart</title>
+</head>
+<body>
+<h1>Hello again, world!</h1>
+<div>
+    <p>Hi</p>
+    <p id="keys"></p>
+    <p id="values"></p>
+</div>
+<script>
+    const keyP = document.getElementById("keys");
+    const valueP = document.getElementById("values");
+    setInterval( () => {
+        const data = fetch("http://localhost:42042/data").then(response => response.json()).then(data => {
+            const keys = Object.keys(data);
+            const values = Object.values(data);
+            keyP.innerText = keys;
+            valueP.innerText = values;
+        });
+     }, 1000);
+
+</script>
+</body>
+</html>
