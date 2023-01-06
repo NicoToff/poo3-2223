@@ -2,15 +2,18 @@ import com.fazecast.jSerialComm.SerialPort
 import serialcom.PortSearch
 import serialcom.Reader
 import java.awt.Color
+import java.awt.Desktop
 import java.awt.Font
 import java.awt.event.ActionEvent
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URI
 import java.time.LocalDateTime
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 import javax.swing.text.Document
+
 
 class HomePage(
     var availablePorts: Array<SerialPort>
@@ -48,6 +51,7 @@ class HomePage(
             btnStart.isEnabled = port.isOpen
             btnConnect.isEnabled = !port.isOpen
             cmbPort.isEnabled = !port.isOpen
+            Desktop.getDesktop().browse(URI("http://localhost:42042"))
         }
     }
 

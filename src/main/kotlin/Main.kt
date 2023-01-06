@@ -1,12 +1,11 @@
 import com.fazecast.jSerialComm.SerialPort
-import java.awt.Desktop
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintStream
 import java.net.ServerSocket
-import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.*
 
 fun main() {
     val availablePorts: Array<SerialPort> = SerialPort.getCommPorts()
@@ -14,20 +13,20 @@ fun main() {
 
     val serverSocket = ServerSocket(42042)
     println("Listening for connections on port 42042...")
-    openWebpage("http://localhost:42042")
+
     while (true) {
-        val socket = serverSocket.accept()
-        println("New client connected")
+        val socket = serverSocket.accept() // Wait for a connection
 
         val input = BufferedReader(InputStreamReader(socket.getInputStream()))
         val output = PrintStream(socket.getOutputStream())
         var route = ""
+
+        // Read the request line by line until the end of the request (empty line)
         while (true) {
             val line = input.readLine() ?: break
-            println(line)
 
-            if (line.startsWith("GET")) {
-                route = line.split(" ")[1]
+            if (line.startsWith("GET") || line.startsWith("POST")) {
+                route = line.split(" ")[1] // example line: GET / HTTP/1.1
             }
 
             if (line.isBlank()) {
@@ -42,10 +41,12 @@ fun main() {
 
                     "/data" -> {
                         var data = "{}"
-                        if (homePage.reader != null && homePage.reader!!.history.isNotEmpty()) {
+                        if (homePage.reader != null) {
+                            // Copie de l'historique pour éviter les ConcurrentModificationException
+                            val treeMapCopy = TreeMap(homePage.reader!!.history)
                             // Make JSON
                             data = "{\n"
-                            for ((key, value) in homePage.reader!!.history) {
+                            for ((key, value) in treeMapCopy) {
                                 data += "\t\"${key}\": ${value},\n"
                             }
                             data = data.substring(0, data.length - 2); // Remove the last comma
@@ -82,7 +83,3 @@ fun main() {
     }
 }
 
-fun openWebpage(url: String) {
-    val desktop = Desktop.getDesktop()
-    desktop.browse(URI(url))
-}
