@@ -44,13 +44,15 @@ fun main() {
                         if (homePage.reader != null) {
                             // Copie de l'historique pour éviter les ConcurrentModificationException
                             val treeMapCopy = TreeMap(homePage.reader!!.history)
-                            // Make JSON
-                            data = "{\n"
-                            for ((key, value) in treeMapCopy) {
-                                data += "\t\"${key}\": ${value},\n"
+                            if (treeMapCopy.isNotEmpty()) {
+                                // Make JSON
+                                data = "{\n"
+                                for ((key, value) in treeMapCopy) {
+                                    data += "\t\"${key}\": ${value},\n"
+                                }
+                                data = data.substring(0, data.length - 2); // Remove the last comma (and newline)
+                                data += "\n}"
                             }
-                            data = data.substring(0, data.length - 2); // Remove the last comma
-                            data += "\n}"
                         }
 
                         output.println("HTTP/1.1 200 OK")

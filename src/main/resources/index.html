@@ -2,45 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Line Chart</title>
+    <title>POO3 - Graphique acquisition</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
 <body class="container">
-<h1 class="display-2 m-4">POO3 - Acquisition</h1>
-<div>
-
-    <div class="float-end">
-        <button class="btn btn-danger m-2" id="btn">Btn</button>
-    </div>
-    <div class="col-lg-8 mx-auto lead">
-        <p>
-            Le graphique représente les <strong>30 dernières valeurs</strong> reçues. Pour consulter les valeurs
-            précédentes, veuillez
-            consulter le <a href="#link-table">tableau ci-dessous</a>.
-        </p>
-        <p>Pour arrêter l'affichage de l'acquisition, cliquez sur "Stop".</p>
-    </div>
-    <div>
-        <canvas id="acquisitions"></canvas>
-    </div>
-
-    <div class="d-flex justify-content-center mb-3">
-        <h3 class="display-6 text-secondary">Nbr. échantillons : <span id="total" class="text-info"></span></h3>
-    </div>
-
-    <table class="table table-striped" id="link-table">
-        <thead>
-        <tr>
-            <th scope="col">Id</th>
-            <th scope="col">Date</th>
-            <th scope="col">Value</th>
-        </tr>
-        </thead>
-        <tbody id="table">
-        </tbody>
-    </table>
+<!-- Put the two following elements as flex, one on the left, one on the right -->
+<div class="d-flex justify-content-between align-items-center">
+    <h1 class="display-2 m-4">POO3 - Acquisition</h1>
+    <img src="https://intranet.helha.be/wp-content/uploads/2021/03/LOGO_HELHa.png" alt="Logo Helha" width="250"
+    >
 </div>
+
+<div class="float-end">
+    <button class="btn btn-danger m-2" id="btn">Btn</button>
+</div>
+<div class="col-lg-8 mx-auto lead">
+    <p>
+        Le graphique représente les <strong>30 dernières valeurs</strong> reçues. Pour consulter les valeurs
+        précédentes, veuillez
+        consulter le <a href="#link-table">tableau ci-dessous</a>.
+    </p>
+    <p>Pour arrêter l'affichage de l'acquisition, cliquez sur "Stop".</p>
+</div>
+<div>
+    <canvas id="acquisitions"></canvas>
+</div>
+
+<div class="d-flex justify-content-center mb-3">
+    <h3 class="display-6 text-secondary">Nbr. échantillons : <span id="total" class="text-info"></span></h3>
+</div>
+
+<table class="table table-striped" id="link-table">
+    <thead>
+    <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Date</th>
+        <th scope="col">Value</th>
+    </tr>
+    </thead>
+    <tbody id="table">
+    </tbody>
+</table>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 <script>
 let proceed = true;
@@ -113,6 +117,18 @@ setInterval(() => {
             }
         });
 }, 1000);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
