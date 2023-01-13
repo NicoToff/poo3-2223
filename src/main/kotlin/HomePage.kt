@@ -12,36 +12,31 @@ import java.time.LocalDateTime
 import javax.swing.*
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
-import javax.swing.text.Document
 
 
-class HomePage(
-    var availablePorts: Array<SerialPort>
-) : JFrame() {
-    private fun Document.addDocumentListener() {
-        this.addDocumentListener(object : DocumentListener {
-            override fun insertUpdate(e: DocumentEvent) {
-                update()
-            }
+class HomePage(var availablePorts: Array<SerialPort>) : JFrame() {
+    fun updateBtnConnectState() {
+        if (txtOperator.text.length > 5 && cmbPort.selectedItem != null) {
+            btnConnect.isEnabled = true
+            btnConnect.toolTipText = null
+        } else {
+            btnConnect.isEnabled = false
+            btnConnect.toolTipText = toolTipTextBtnConnect
+        }
+    }
 
-            override fun removeUpdate(e: DocumentEvent) {
-                update()
-            }
+    private val onTyping = object : DocumentListener {
+        override fun insertUpdate(e: DocumentEvent) {
+            updateBtnConnectState()
+        }
 
-            override fun changedUpdate(e: DocumentEvent) {
-                update()
-            }
+        override fun removeUpdate(e: DocumentEvent) {
+            updateBtnConnectState()
+        }
 
-            private fun update() {
-                if (txtOperator.text.length > 5 && cmbPort.selectedItem != null) {
-                    btnConnect.isEnabled = true
-                    btnConnect.toolTipText = null
-                } else {
-                    btnConnect.isEnabled = false
-                    btnConnect.toolTipText = toolTipTextBtnConnect
-                }
-            }
-        })
+        override fun changedUpdate(e: DocumentEvent) {
+            updateBtnConnectState()
+        }
     }
 
     private fun connectButtonClicked(e: ActionEvent) {
@@ -128,7 +123,7 @@ class HomePage(
         btnConnect.addActionListener(::connectButtonClicked)
         btnStart.addActionListener(::startButtonClicked)
         btnStop.addActionListener(::stopButtonClicked)
-        txtOperator.document.addDocumentListener()
+        txtOperator.document.addDocumentListener(onTyping)
         PortSearch(this).start()
     }
 
