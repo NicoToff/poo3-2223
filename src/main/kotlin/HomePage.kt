@@ -116,10 +116,10 @@ class HomePage(var availablePorts: Array<SerialPort>) : JFrame() {
     // endregion
 
     init {
+        initComponents()
         title = "Home Page"
         defaultCloseOperation = EXIT_ON_CLOSE
         isVisible = true
-        initComponents()
         btnConnect.addActionListener(::connectButtonClicked)
         btnStart.addActionListener(::startButtonClicked)
         btnStop.addActionListener(::stopButtonClicked)
