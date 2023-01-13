@@ -25,10 +25,13 @@ fun main() {
         while (true) {
             val line = input.readLine() ?: break
 
+            // Check if the request is GET or POST
             if (line.startsWith("GET") || line.startsWith("POST")) {
                 route = line.split(" ")[1] // example line: GET / HTTP/1.1
             }
 
+            // Once the line is blank, the HTTP request is over
+            // We can stop reading the request and send a response
             if (line.isBlank()) {
                 when (route) {
                     "/" -> {
@@ -77,6 +80,7 @@ fun main() {
                         output.println("Not Found")
                     }
                 }
+                route = ""
                 break
             }
         }
