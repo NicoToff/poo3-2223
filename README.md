@@ -2,6 +2,8 @@
 
 Le code source présent dans ce repo a servi à l'examen de POO3 de janvier 2023 à la HELHa Charleroi.
 
+Le programme a été réalisé en Kotlin, JavaScript et HTML.
+
 ## Cahier des charges
 
 <details>
@@ -55,9 +57,65 @@ Vous pouvez aussi utiliser des librairies.
 - Un Arduino Uno (ou autre microcontrôleur avec un port série)
 - Un navigateur web
 
-## Bugs connus
+# Explication de la stack
 
-### Initialisation de la fenêtre
+## Fenêtre principale
+
+### Kotlin
+
+J'ai préféré Kotlin plutôt que Java pour son approche
+fonctionnelle (à laquelle je me suis habitué avec JS et TS) et sa syntaxe plus concise.
+
+### Swing
+
+J'ai créé l'interface graphique avec l'éditeur de forms de NetBeans (qui génère les componsants avec la lbrary Swing),
+puis j'ai
+modifié le code généré pour l'adapter à mon besoin.
+
+### jSerialComm
+
+Suivant les conseils de M. Michaux, j'ai utilisé cette library pour communiquer avec le port série de l'Arduino.
+
+## Fenêtre secondaire
+
+Les bibliothèques disponibles en Java pour afficher des graphiques, j'avais repéré :
+
+- JFreeChart (https://www.jfree.org/jfreechart/)
+- JavaFX (https://docs.oracle.com/javafx/2/charts/jfxpub-charts.htm)
+- JGraph (https://www.jgraph.com/)
+- JMathPlot (https://github.com/yannrichet/jmathplot)
+- JXChart (https://pirlwww.lpl.arizona.edu/resources/guide/software/SwingX/org/jdesktop/swingx/JXGraph.html)
+
+Aucune de ces bibliothèques ne me satisfaisait. Elles sont assez anciennes, produisent
+des graphiques plutôt laids et leur approche très orientée objet ne simplifie pas leur utilisation !
+
+Connaissant les capacités de Java/Kotlin à produire des serveurs web très facilement, j'ai décidé d'utiliser une
+bibliothèque plus récente, plus moderne et plus simple d'utilisation : Chart.js (https://www.chartjs.org/).
+
+Pour afficher la page de graphique, c'est donc une page web qui est ouverte à la place d'une JFrame. Dans la mesure où
+cette page est extrêmement simple, je me suis contenté des ServerSocket de Java pour la servir au client.
+
+### HTML + JS
+
+L'unique page HTML est très simple. Elle contient :
+
+- Un canvas sur lequel le graphique est affiché.
+- Un tableau qui affiche les données et leur timestamp.
+- Un bouton pour arrêter l'arrivée des valeurs.
+
+Le code JS est directement écrit dans une balise `<script>` dans la page HTML.
+Toutes les secondes, il fait une requête HTTP à l'application Java pour récupérer les données, puis il met à jour le
+graphique et le tableau.
+
+Pour le CSS, j'ai utilisé Bootstrap 5.
+
+### Chart.js
+
+Cette library JS permet de créer des graphiques à partir de données fournies.
+
+# Bugs connus
+
+## Initialisation de la fenêtre
 
 Lors de l'initialisation de la fenêtre, il est possible que celle-ci ne s'affiche pas correctement.
 Toutefois, il suffit de redimensionner la fenêtre pour que celle-ci s'affiche correctement.
