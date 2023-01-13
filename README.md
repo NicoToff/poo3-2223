@@ -115,6 +115,9 @@ Cette library JS permet de créer des graphiques à partir de données fournies.
 
 # Bugs connus
 
+<details>
+  <summary>Bugs corrigés (jusqu'à preuve du contraire !)</summary>
+
 ## Initialisation de la fenêtre
 
 Lors de l'initialisation de la fenêtre, il est possible que celle-ci ne s'affiche pas correctement.
@@ -153,3 +156,5 @@ Exception in thread "AWT-EventQueue-0" java.lang.IllegalStateException: javax.sw
 	at java.desktop/java.awt.EventDispatchThread.pumpEvents(EventDispatchThread.java:101)
 	at java.desktop/java.awt.EventDispatchThread.run(EventDispatchThread.java:90)
 ```
+
+</details>
