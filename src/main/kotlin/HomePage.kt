@@ -15,6 +15,7 @@ import javax.swing.event.DocumentListener
 
 
 class HomePage(var availablePorts: Array<SerialPort>) : JFrame() {
+    var reader: Reader? = null
     private val toolTipTextBtnConnect = "Veuillez entrer un nom d'opérateur"
     fun updateBtnConnectState() {
         if (txtOperator.text.length > 5 && cmbPort.selectedItem != null) {
@@ -92,7 +93,6 @@ class HomePage(var availablePorts: Array<SerialPort>) : JFrame() {
 
     // region Swing components
     val cmbPort: JComboBox<String> = JComboBox(availablePorts.map { it.systemPortName }.toTypedArray())
-    var reader: Reader? = null
     val lblLastValue: JLabel = JLabel()
     val lblSampleNumber: JLabel = JLabel()
 
