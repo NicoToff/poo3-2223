@@ -72,6 +72,7 @@ class HomePage(var availablePorts: Array<SerialPort>) : JFrame() {
 
     private fun saveFile(reader: Reader) {
         val data = reader.history
+        // region Folder, file and filename creation
         val operator = getOperator()
         val port = cmbPort.selectedItem?.toString()
         val startTime = LocalDateTime.parse(lblStartTime.text).toString().replace(":", "")
@@ -81,12 +82,10 @@ class HomePage(var availablePorts: Array<SerialPort>) : JFrame() {
         println("Saving file: $fileName")
         val file = File("data/$fileName.csv")
         file.createNewFile()
+        // endregion
         FileOutputStream(file).use { stream ->
             for ((time, value) in data.entries) {
-                val sanitizedTime =
-                    time.toString().replace(Regex("[=!&*^%}{)($#@`~]"), "") // Remove dangerous characters for Excel
-                val entry = "$sanitizedTime;$value\n"
-                stream.write(entry.toByteArray())
+                stream.write("$time;$value\n".toByteArray())
             }
         }
     }
