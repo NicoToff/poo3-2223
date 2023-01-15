@@ -15,6 +15,7 @@ import javax.swing.event.DocumentListener
 
 
 class HomePage(var availablePorts: Array<SerialPort>) : JFrame() {
+    private val toolTipTextBtnConnect = "Veuillez entrer un nom d'opérateur"
     fun updateBtnConnectState() {
         if (txtOperator.text.length > 5 && cmbPort.selectedItem != null) {
             btnConnect.isEnabled = true
@@ -108,8 +109,6 @@ class HomePage(var availablePorts: Array<SerialPort>) : JFrame() {
     fun getComment(): String {
         return txtComment.text.trim()
     }
-
-    private val toolTipTextBtnConnect = "Veuillez entrer un nom d'opérateur"
 
     // region Unimportant labels
     private val jLabel1: JLabel = JLabel()

@@ -51,7 +51,7 @@ class Server(private val homePage: HomePage, port: Int = 42042) : Thread() {
                             val operator = homePage.getOperator().replace("[><\"'`|&/\\\\:)(]", "")
                             val comment = homePage.getComment().replace("[><\"'`|&/\\\\:)(]", "")
                             output.println("HTTP/1.1 200 OK")
-                            output.println("Content-Type: text/plain")
+                            output.println("Content-Type: application/json")
                             output.println()
                             output.println(
                                 """
@@ -79,7 +79,7 @@ class Server(private val homePage: HomePage, port: Int = 42042) : Thread() {
                                 }
                             }
                             output.println("HTTP/1.1 200 OK")
-                            output.println("Content-Type: text/plain")
+                            output.println("Content-Type: application/json")
                             output.println()
                             output.println(data)
                         }
