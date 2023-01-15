@@ -78,7 +78,7 @@ Suivant les conseils de M. Michaux, j'ai utilisé cette library pour communiquer
 
 ## Fenêtre secondaire
 
-Les bibliothèques disponibles en Java pour afficher des graphiques, j'avais repéré :
+Parmi les bibliothèques disponibles en Java pour afficher des graphiques, j'avais repéré :
 
 - JFreeChart (https://www.jfree.org/jfreechart/)
 - JavaFX (https://docs.oracle.com/javafx/2/charts/jfxpub-charts.htm)
