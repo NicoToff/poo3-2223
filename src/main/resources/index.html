@@ -83,8 +83,8 @@ setInterval(() => {
             const values = Object.values(data);
             // Update the total
             total.innerText = values.length;
-            // Keep only the latest 25 values
-            if (keys.length > 25) {
+            // Keep only the latest 30 values
+            if (keys.length > 30) {
                 keys.splice(0, keys.length - 30);
                 values.splice(0, values.length - 30);
             }
@@ -129,13 +129,6 @@ setInterval(() => {
             }
         });
 }, 1000);
-
-
-
-
-
-
-
 
 
 
