@@ -26,7 +26,7 @@ class Server(private val homePage: HomePage, port: Int = 42042) : Thread() {
             val output = PrintStream(socket.getOutputStream())
             var route = ""
 
-            // Read the request line by line until the end of the request (empty line)
+            // Read the whole request, line by line. The end is marked by an empty line.
             while (true) {
                 val line = input.readLine() ?: break
 
@@ -35,8 +35,8 @@ class Server(private val homePage: HomePage, port: Int = 42042) : Thread() {
                     route = line.split(" ")[1] // example line: GET / HTTP/1.1
                 }
 
-                // Once the line is blank, the HTTP request is over
-                // We can stop reading the request and send a response
+                // Once the line is blank, the HTTP request is over,
+                // so we can stop reading and start sending a response.
                 if (line.isBlank()) {
                     when (route) {
                         "/" -> {
@@ -48,8 +48,10 @@ class Server(private val homePage: HomePage, port: Int = 42042) : Thread() {
                         }
 
                         "/initial-data" -> {
-                            val operator = homePage.getOperator().replace("[><\"'`|&/\\\\:)(]", "")
-                            val comment = homePage.getComment().replace("[><\"'`|&/\\\\:)(]", "")
+                            val badChars = Regex("[}{><)(\\]\\[\"'`|&/\\\\:~=!.;]")
+                            val operator = homePage.getOperator().replace(badChars, "")
+                            val comment = homePage.getComment().replace(badChars, "")
+                            println("Sending initial data to client: $operator, $comment")
                             output.println("HTTP/1.1 200 OK")
                             output.println("Content-Type: application/json")
                             output.println()
@@ -64,14 +66,14 @@ class Server(private val homePage: HomePage, port: Int = 42042) : Thread() {
                         }
 
                         "/data" -> {
-                            var data = "{}"
+                            var data = "{}" // Empty JSON
                             if (homePage.reader != null) {
-                                // Copie de l'historique pour éviter les ConcurrentModificationException
-                                val treeMapCopy = TreeMap(homePage.reader!!.history)
-                                if (treeMapCopy.isNotEmpty()) {
+                                // Clone de l'historique pour éviter les ConcurrentModificationException
+                                val treeMapClone = TreeMap(homePage.reader!!.history)
+                                if (treeMapClone.isNotEmpty()) {
                                     // Make JSON
                                     data = "{\n"
-                                    for ((key, value) in treeMapCopy) {
+                                    for ((key, value) in treeMapClone) {
                                         data += "\t\"${key}\": ${value},\n"
                                     }
                                     data = data.substring(0, data.length - 2) // Remove the last comma (and newline)
@@ -97,7 +99,7 @@ class Server(private val homePage: HomePage, port: Int = 42042) : Thread() {
                             output.println("HTTP/1.1 404 Not Found")
                             output.println("Content-Type: text/plain")
                             output.println()
-                            output.println("Not Found")
+                            output.println("404 - Page Not Found")
                         }
                     }
                     route = ""
