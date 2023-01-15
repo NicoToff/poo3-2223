@@ -70,10 +70,9 @@ class HomePage(var availablePorts: Array<SerialPort>) : JFrame() {
 
     private fun saveFile(reader: Reader) {
         val data = reader.history
-        val operator = txtOperator.text.trim()
+        val operator = getOperator()
         val port = cmbPort.selectedItem?.toString()
         val startTime = LocalDateTime.parse(lblStartTime.text).toString().replace(":", "")
-        val endTime = LocalDateTime.now().toString()
         val folder = File("data")
         if (!folder.exists()) folder.mkdir()
         val fileName = makeSafeFileName("${startTime}_($port)_${operator}");
@@ -100,8 +99,16 @@ class HomePage(var availablePorts: Array<SerialPort>) : JFrame() {
     private val btnStart: JButton = JButton()
     private val btnStop: JButton = JButton()
     private val lblStartTime: JLabel = JLabel()
-    private val txtComment: JTextField = JTextField()
     private val txtOperator: JTextField = JTextField()
+    fun getOperator(): String {
+        return txtOperator.text.trim()
+    }
+
+    private val txtComment: JTextField = JTextField()
+    fun getComment(): String {
+        return txtComment.text.trim()
+    }
+
     private val toolTipTextBtnConnect = "Veuillez entrer un nom d'opérateur"
 
     // region Unimportant labels

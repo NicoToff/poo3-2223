@@ -26,6 +26,8 @@
     <p>Pour arrêter l'affichage de l'acquisition, cliquez sur "Stop".</p>
 </div>
 <div>
+    <h2 class="display-6 m-1">Opérateur : <span id="operator"></span></h2>
+    <p id="comment"></p>
     <canvas id="acquisitions"></canvas>
 </div>
 
@@ -51,6 +53,8 @@ let proceed = true;
 const table = document.getElementById("table");
 const btn = document.getElementById("btn");
 const total = document.getElementById("total");
+const operatorTitle = document.getElementById("operator");
+const commentField = document.getElementById("comment");
 
 btn.innerText = proceed ? "Stop" : "Reprendre";
 btn.addEventListener("click", () => {
@@ -59,6 +63,14 @@ btn.addEventListener("click", () => {
     btn.classList.toggle("btn-danger");
     btn.classList.toggle("btn-success");
 });
+
+fetch("http://localhost:42042/initial-data")
+    .then(response => response.json())
+    .then(({ operator, comment }) => {
+        operatorTitle.innerText = operator;
+        comment && (commentField.innerText = `Commentaire : ${comment}`);
+    })
+    .catch(console.error);
 
 let chart = null;
 setInterval(() => {
@@ -117,34 +129,6 @@ setInterval(() => {
             }
         });
 }, 1000);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -47,6 +47,22 @@ class Server(private val homePage: HomePage, port: Int = 42042) : Thread() {
                             output.println(html)
                         }
 
+                        "/initial-data" -> {
+                            val operator = homePage.getOperator().replace("[><\"'`|&/\\\\:)(]", "")
+                            val comment = homePage.getComment().replace("[><\"'`|&/\\\\:)(]", "")
+                            output.println("HTTP/1.1 200 OK")
+                            output.println("Content-Type: text/plain")
+                            output.println()
+                            output.println(
+                                """
+                                {
+                                    "operator": "$operator",
+                                    "comment": "$comment"
+                                }
+                            """
+                            )
+                        }
+
                         "/data" -> {
                             var data = "{}"
                             if (homePage.reader != null) {
