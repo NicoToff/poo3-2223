@@ -5,6 +5,7 @@ import com.fazecast.jSerialComm.SerialPort
 
 class PortSearch(private val homePage: HomePage) : Thread() {
     override fun run() {
+        homePage.updateBtnConnectState()
         while (homePage.availablePorts.isEmpty()) {
             println("Looking for ports...")
             homePage.availablePorts = SerialPort.getCommPorts()
